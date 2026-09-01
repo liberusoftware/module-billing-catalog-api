@@ -26,7 +26,7 @@ final class CatalogRecordController extends Controller
         $model = $this->model($type);
         Gate::authorize('viewAny', $model);
         $teamId = data_get($request->user(), 'current_team_id') ?? data_get($request->user(), 'currentTeam.id');
-        $records = $query->execute($model, $teamId !== null ? (int) $teamId : null, $request->integer('per_page', 25));
+        $records = $query->execute($model, $teamId !== null ? (int) $teamId : null, min(max((int) $request->input('page.size', $request->integer('per_page', 25)), 1), 100));
 
         return response()->json(['data' => $records->getCollection()->map(fn ($record): array => $this->resource($record, $type))->values(), 'meta' => ['current_page' => $records->currentPage(), 'last_page' => $records->lastPage()]]);
     }
