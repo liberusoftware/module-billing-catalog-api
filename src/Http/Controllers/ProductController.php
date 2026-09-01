@@ -20,7 +20,7 @@ final class ProductController extends Controller
     {
         Gate::authorize('viewAny', Product::class);
         $teamId = data_get($request->user(), 'current_team_id') ?? data_get($request->user(), 'currentTeam.id');
-        $products = $query->execute($teamId !== null ? (int) $teamId : null, $request->integer('per_page', 25));
+        $products = $query->execute($teamId !== null ? (int) $teamId : null, min(max((int) $request->input('page.size', $request->integer('per_page', 25)), 1), 100));
 
         return response()->json([
             'data' => $products->getCollection()->map(fn (Product $product): array => $this->resource($product))->values(),
